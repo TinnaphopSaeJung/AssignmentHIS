@@ -20,7 +20,7 @@ func SetupRouter(h *Handlers) *gin.Engine {
 
 	// auth
 	r.POST("/staff/create", h.Auth.CreateStaff)
-	// r.POST("/staff/login", h.Auth.Login)
+	r.POST("/staff/login", h.Auth.Login)
 
 	// patient
 	// r.GET("/patient/search", h.Patient.Search)

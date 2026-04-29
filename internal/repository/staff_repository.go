@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"his/internal/dto"
 	"his/internal/models"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -32,17 +33,30 @@ func (r *StaffRepository) Create(ctx context.Context, staff *models.Staff) error
 	return err
 }
 
-func (r *StaffRepository) FindByUsername(ctx context.Context, username string) (*models.Staff, error) {
+func (r *StaffRepository) FindStaffByUsername(ctx context.Context, username string) (*dto.StaffWithHospital, error) {
 	query := `
-		SELECT id, username
+		SELECT 
+			staffs.id,
+			staffs.username,
+			staffs.password_hash,
+			staffs.hospital_id,
+			hospitals.name
 		FROM staffs
-		WHERE username = $1 AND deleted_at IS NULL
+		JOIN hospitals ON staffs.hospital_id = hospitals.id
+		WHERE staffs.username = $1
+		AND staffs.deleted_at IS NULL
 	`
 
 	row := r.db.QueryRow(ctx, query, username)
 
-	var staff models.Staff
-	err := row.Scan(&staff.ID, &staff.Username)
+	var staff dto.StaffWithHospital
+	err := row.Scan(
+		&staff.ID,
+		&staff.Username,
+		&staff.PasswordHash,
+		&staff.HospitalID,
+		&staff.HospitalName,
+	)
 	if err != nil {
 		return nil, err
 	}

@@ -22,7 +22,7 @@ func (h *AuthHandler) CreateStaff(c *gin.Context) {
 	var req dto.CreateStaffRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, utils.Error("Failed. Cannot create new staff. Error: "+err.Error(), 400))
+		c.JSON(http.StatusBadRequest, utils.Error("Failed. Cannot create new staff. Error: "+err.Error()))
 		return
 	}
 
@@ -34,9 +34,26 @@ func (h *AuthHandler) CreateStaff(c *gin.Context) {
 
 	err := h.service.CreateStaff(c.Request.Context(), input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.Error("Failed. Cannot create new staff. Error: "+err.Error(), 500))
+		c.JSON(http.StatusInternalServerError, utils.Error("Failed. Cannot create new staff. Error: "+err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, utils.Success("Create new staff successfully.", nil))
+	c.JSON(http.StatusCreated, utils.Success("Create new staff successfully.", nil))
+}
+
+func (h *AuthHandler) Login(c *gin.Context) {
+	var req dto.LoginRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, utils.Error("Failed. Invalid request. Error: "+err.Error()))
+		return
+	}
+
+	res, err := h.service.Login(c.Request.Context(), req.Username, req.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Error("Login failed. Error: "+err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.Success("Login successfully.", res))
 }

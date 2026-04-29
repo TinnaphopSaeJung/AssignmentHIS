@@ -1,10 +1,9 @@
 package utils
 
 type APIResponse struct {
-	Success   bool        `json:"success"`
-	Message   string      `json:"message"`
-	Data      interface{} `json:"data,omitempty"`
-	ErrorCode int         `json:"error_code,omitempty"`
+	Success bool        `json:"success"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
 func Success(message string, data interface{}) APIResponse {
@@ -15,11 +14,10 @@ func Success(message string, data interface{}) APIResponse {
 	}
 }
 
-func Error(message string, code int) APIResponse {
+func Error(message string) APIResponse {
 	return APIResponse{
-		Success:   false,
-		Message:   message,
-		ErrorCode: code,
-		Data:      map[string]interface{}{},
+		Success: false,
+		Message: message,
+		Data:    map[string]interface{}{},
 	}
 }

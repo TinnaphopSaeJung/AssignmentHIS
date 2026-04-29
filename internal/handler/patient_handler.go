@@ -30,13 +30,13 @@ func (h *PatientHandler) Search(c *gin.Context) {
 
 	hospitalID := c.GetInt64("hospital_id")
 
-	results, err := h.service.Search(c.Request.Context(), hospitalID, req)
+	results, statusCode, err := h.service.Search(c.Request.Context(), hospitalID, req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.Error("Cannot search patient. Error: "+err.Error()))
+		c.JSON(statusCode, utils.Error("Cannot search patient. Error: "+err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, utils.Success("Search patient successfully.", results))
+	c.JSON(statusCode, utils.Success("Search patient successfully.", results))
 }
 
 func (h *PatientHandler) SearchFromHISExternal(c *gin.Context) {
@@ -47,11 +47,11 @@ func (h *PatientHandler) SearchFromHISExternal(c *gin.Context) {
 		return
 	}
 
-	res, err := h.service.SearchFromHISExternal(c.Request.Context(), req.ID)
+	res, statusCode, err := h.service.SearchFromHISExternal(c.Request.Context(), req.ID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.Error("Cannot search patient from External HIS. Error: "+err.Error()))
+		c.JSON(statusCode, utils.Error("Cannot search patient from External HIS. Error: "+err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, utils.Success("Search patient from External HIS successfully.", res))
+	c.JSON(statusCode, utils.Success("Search patient from External HIS successfully.", res))
 }

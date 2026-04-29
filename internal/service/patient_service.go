@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"his/internal/clients"
 	"his/internal/dto"
@@ -22,9 +23,9 @@ func NewPatientService(repo *repository.PatientRepository, hospitalAClient *clie
 	}
 }
 
-func (s *PatientService) Search(ctx context.Context, hospitalID int64, req dto.SearchPatientRequest) (*dto.SearchPatientResponse, error) {
+func (s *PatientService) Search(ctx context.Context, hospitalID int64, req dto.SearchPatientRequest) (*dto.SearchPatientResponse, int, error) {
 	if !utils.IsValidDate(req.DateOfBirth) {
-		return nil, errors.New("date_of_birth must be in YYYY-MM-DD format.")
+		return nil, 409, errors.New("date_of_birth must be in YYYY-MM-DD format.")
 	}
 
 	if req.Page <= 0 {
@@ -37,7 +38,7 @@ func (s *PatientService) Search(ctx context.Context, hospitalID int64, req dto.S
 
 	items, total, err := s.repo.Search(ctx, hospitalID, req)
 	if err != nil {
-		return nil, err
+		return nil, 500, fmt.Errorf("Internal Server Error: %w", err)
 	}
 
 	lastPage := (total + req.Limit - 1) / req.Limit
@@ -65,14 +66,14 @@ func (s *PatientService) Search(ctx context.Context, hospitalID int64, req dto.S
 			PreviousPage: prevPage,
 			NextPage:     nextPage,
 		},
-	}, nil
+	}, 200, nil
 }
 
-func (s *PatientService) SearchFromHISExternal(ctx context.Context, id string) (*dto.HospitalAPatientResponse, error) {
-	patient, err := s.hospitalAClient.SearchPatient(ctx, id)
+func (s *PatientService) SearchFromHISExternal(ctx context.Context, id string) (*dto.HospitalAPatientResponse, int, error) {
+	patient, statusCode, err := s.hospitalAClient.SearchPatient(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, statusCode, err
 	}
 
-	return patient, nil
+	return patient, 200, nil
 }

@@ -32,13 +32,13 @@ func (h *AuthHandler) CreateStaff(c *gin.Context) {
 		HospitalID: req.HospitalID,
 	}
 
-	err := h.service.CreateStaff(c.Request.Context(), input)
+	statusCode, err := h.service.CreateStaff(c.Request.Context(), input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.Error("Failed. Cannot create new staff. Error: "+err.Error()))
+		c.JSON(statusCode, utils.Error(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusCreated, utils.Success("Create new staff successfully.", nil))
+	c.JSON(statusCode, utils.Success("Create new staff successfully.", nil))
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
@@ -49,11 +49,11 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	res, err := h.service.Login(c.Request.Context(), req.Username, req.Password)
+	res, statusCode, err := h.service.Login(c.Request.Context(), req.Username, req.Password)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.Error("Login failed. Error: "+err.Error()))
+		c.JSON(statusCode, utils.Error("Login failed. Error: "+err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, utils.Success("Login successfully.", res))
+	c.JSON(statusCode, utils.Success("Login successfully.", res))
 }

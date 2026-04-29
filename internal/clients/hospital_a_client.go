@@ -28,7 +28,7 @@ func NewHospitalAClient() *HospitalAClient {
 	}
 }
 
-func (c *HospitalAClient) SearchPatient(ctx context.Context, id string) (*dto.HospitalAPatientResponse, error) {
+func (c *HospitalAClient) SearchPatient(ctx context.Context, id string) (*dto.HospitalAPatientResponse, int, error) {
 	url := fmt.Sprintf("%s/patient/search/%s", c.baseURL, id)
 
 	/*
@@ -95,13 +95,13 @@ func (c *HospitalAClient) SearchPatient(ctx context.Context, id string) (*dto.Ho
 
 	mockResponse, ok := mockJSON[id]
 	if !ok {
-		return nil, errors.New("patient not found from hospital A")
+		return nil, 400, errors.New("patient not found from hospital A")
 	}
 
 	var result dto.HospitalAPatientResponse
 	if err := json.Unmarshal([]byte(mockResponse), &result); err != nil {
-		return nil, err
+		return nil, 500, err
 	}
 
-	return &result, nil
+	return &result, 200, nil
 }

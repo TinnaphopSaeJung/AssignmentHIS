@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"his/internal/dto"
 	"his/internal/models"
 	"his/internal/repository"
@@ -23,19 +24,19 @@ func NewAuthService(repo *repository.StaffRepository, jwtManager *utils.JWTManag
 	}
 }
 
-func (s *AuthService) CreateStaff(ctx context.Context, input dto.CreateStaffInput) error {
+func (s *AuthService) CreateStaff(ctx context.Context, input dto.CreateStaffInput) (int, error) {
 	if !utils.IsValidPassword(input.Password) {
-		return errors.New("Password must be at least 8 characters and include letters, numbers, and special characters.")
+		return 400, errors.New("Password must be at least 8 characters and include letters, numbers, and special characters.")
 	}
 
 	existing, _ := s.repo.FindStaffByUsername(ctx, input.Username)
 	if existing != nil {
-		return errors.New("This username already exists.")
+		return 409, errors.New("This username already exists.")
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return 500, errors.New("Internal Server Error.")
 	}
 
 	staff := &models.Staff{
@@ -44,13 +45,17 @@ func (s *AuthService) CreateStaff(ctx context.Context, input dto.CreateStaffInpu
 		HospitalID:   input.HospitalID,
 	}
 
-	return s.repo.Create(ctx, staff)
+	if err := s.repo.Create(ctx, staff); err != nil {
+		return 500, fmt.Errorf("Internal Server Error: %w", err)
+	}
+
+	return 201, nil
 }
 
-func (s *AuthService) Login(ctx context.Context, username, password string) (*dto.LoginResponse, error) {
+func (s *AuthService) Login(ctx context.Context, username, password string) (*dto.LoginResponse, int, error) {
 	staff, err := s.repo.FindStaffByUsername(ctx, username)
 	if err != nil {
-		return nil, errors.New("Invalid username or password.")
+		return nil, 400, errors.New("Invalid username or password.")
 	}
 
 	err = bcrypt.CompareHashAndPassword(
@@ -58,12 +63,12 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (*dt
 		[]byte(password),
 	)
 	if err != nil {
-		return nil, errors.New("Invalid username or password.")
+		return nil, 400, errors.New("Invalid username or password.")
 	}
 
 	token, err := s.jwtManager.GenerateJWT(staff.ID, staff.HospitalID)
 	if err != nil {
-		return nil, errors.New("Cannot generate token.")
+		return nil, 500, errors.New("Cannot generate token.")
 	}
 
 	return &dto.LoginResponse{
@@ -72,5 +77,5 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (*dt
 		Username:     staff.Username,
 		HospitalID:   staff.HospitalID,
 		HospitalName: staff.HospitalName,
-	}, nil
+	}, 200, nil
 }

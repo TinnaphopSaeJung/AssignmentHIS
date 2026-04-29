@@ -16,14 +16,21 @@ type Handlers struct {
 func SetupRouter(h *Handlers, jwtManager *utils.JWTManager) *gin.Engine {
 	r := gin.Default()
 
-	// auth
-	r.POST("/staff/create", h.Auth.CreateStaff)
-	r.POST("/staff/login", h.Auth.Login)
+	// staff
+	staff := r.Group("/staff")
+	{
+		staff.POST("/create", h.Auth.CreateStaff)
+		staff.POST("/login", h.Auth.Login)
+	}
 
 	auth := r.Group("/")
 	auth.Use(middleware.AuthMiddleware(jwtManager))
 
-	auth.POST("/patient/search", h.Patient.Search)
+	// patient
+	patient := auth.Group("/patient")
+	{
+		patient.POST("/search", h.Patient.Search)
+	}
 
 	return r
 }

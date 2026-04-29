@@ -30,6 +30,7 @@ func SetupRouter(h *Handlers, jwtManager *utils.JWTManager) *gin.Engine {
 	patient := auth.Group("/patient")
 	{
 		patient.POST("/search", h.Patient.Search)
+		patient.POST("/search-from-external", h.Patient.SearchFromHISExternal)
 	}
 
 	return r

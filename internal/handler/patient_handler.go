@@ -38,3 +38,20 @@ func (h *PatientHandler) Search(c *gin.Context) {
 
 	c.JSON(http.StatusOK, utils.Success("Search patient successfully.", results))
 }
+
+func (h *PatientHandler) SearchFromHISExternal(c *gin.Context) {
+	var req dto.SearchPatientFromHISRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, utils.Error("Invalid request. Error: "+err.Error()))
+		return
+	}
+
+	res, err := h.service.SearchFromHISExternal(c.Request.Context(), req.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Error("Cannot search patient from External HIS. Error: "+err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.Success("Search patient from External HIS successfully.", res))
+}

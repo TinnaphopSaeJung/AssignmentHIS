@@ -1,6 +1,7 @@
 package main
 
 import (
+	"his/internal/clients"
 	"his/internal/config"
 	"his/internal/database"
 	"his/internal/handler"
@@ -21,8 +22,10 @@ func main() {
 	authService := service.NewAuthService(staffRepo, jwtManager)
 	authHandler := handler.NewAuthHandler(authService)
 
+	hospitalAClient := clients.NewHospitalAClient()
+
 	patientRepo := repository.NewPatientRepository(db)
-	patientService := service.NewPatientService(patientRepo)
+	patientService := service.NewPatientService(patientRepo, hospitalAClient)
 	patientHandler := handler.NewPatientHandler(patientService)
 
 	handlers := &routes.Handlers{

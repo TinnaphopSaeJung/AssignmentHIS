@@ -4,18 +4,21 @@ import (
 	"context"
 	"errors"
 
+	"his/internal/clients"
 	"his/internal/dto"
 	"his/internal/repository"
 	"his/pkg/utils"
 )
 
 type PatientService struct {
-	repo *repository.PatientRepository
+	repo            *repository.PatientRepository
+	hospitalAClient *clients.HospitalAClient
 }
 
-func NewPatientService(repo *repository.PatientRepository) *PatientService {
+func NewPatientService(repo *repository.PatientRepository, hospitalAClient *clients.HospitalAClient) *PatientService {
 	return &PatientService{
-		repo: repo,
+		repo:            repo,
+		hospitalAClient: hospitalAClient,
 	}
 }
 
@@ -63,4 +66,13 @@ func (s *PatientService) Search(ctx context.Context, hospitalID int64, req dto.S
 			NextPage:     nextPage,
 		},
 	}, nil
+}
+
+func (s *PatientService) SearchFromHISExternal(ctx context.Context, id string) (*dto.HospitalAPatientResponse, error) {
+	patient, err := s.hospitalAClient.SearchPatient(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return patient, nil
 }

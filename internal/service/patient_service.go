@@ -5,18 +5,24 @@ import (
 	"errors"
 	"fmt"
 
-	"his/internal/clients"
 	"his/internal/dto"
-	"his/internal/repository"
 	"his/pkg/utils"
 )
 
-type PatientService struct {
-	repo            *repository.PatientRepository
-	hospitalAClient *clients.HospitalAClient
+type PatientRepository interface {
+	Search(ctx context.Context, hospitalID int64, req dto.SearchPatientRequest) ([]dto.PatientResponse, int, error)
 }
 
-func NewPatientService(repo *repository.PatientRepository, hospitalAClient *clients.HospitalAClient) *PatientService {
+type HospitalAClient interface {
+	SearchPatient(ctx context.Context, id string) (*dto.HospitalAPatientResponse, int, error)
+}
+
+type PatientService struct {
+	repo            PatientRepository
+	hospitalAClient HospitalAClient
+}
+
+func NewPatientService(repo PatientRepository, hospitalAClient HospitalAClient) *PatientService {
 	return &PatientService{
 		repo:            repo,
 		hospitalAClient: hospitalAClient,

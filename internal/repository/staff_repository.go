@@ -63,3 +63,22 @@ func (r *StaffRepository) FindStaffByUsername(ctx context.Context, username stri
 
 	return &staff, nil
 }
+
+func (r *StaffRepository) IsUsernameExists(ctx context.Context, username string) (bool, error) {
+	query := `
+		SELECT EXISTS (
+			SELECT 1
+			FROM staffs
+			WHERE username = $1
+			AND deleted_at IS NULL
+		)
+	`
+
+	var exists bool
+	err := r.db.QueryRow(ctx, query, username).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}

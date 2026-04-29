@@ -6,18 +6,23 @@ import (
 	"fmt"
 	"his/internal/dto"
 	"his/internal/models"
-	"his/internal/repository"
 	"his/pkg/utils"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
+type StaffRepository interface {
+	Create(ctx context.Context, staff *models.Staff) error
+	FindStaffByUsername(ctx context.Context, username string) (*dto.StaffWithHospital, error)
+	IsUsernameExists(ctx context.Context, username string) (bool, error)
+}
+
 type AuthService struct {
-	repo       *repository.StaffRepository
+	repo       StaffRepository
 	jwtManager *utils.JWTManager
 }
 
-func NewAuthService(repo *repository.StaffRepository, jwtManager *utils.JWTManager) *AuthService {
+func NewAuthService(repo StaffRepository, jwtManager *utils.JWTManager) *AuthService {
 	return &AuthService{
 		repo:       repo,
 		jwtManager: jwtManager,
@@ -29,8 +34,12 @@ func (s *AuthService) CreateStaff(ctx context.Context, input dto.CreateStaffInpu
 		return 400, errors.New("Password must be at least 8 characters and include letters, numbers, and special characters.")
 	}
 
-	existing, _ := s.repo.FindStaffByUsername(ctx, input.Username)
-	if existing != nil {
+	exists, err := s.repo.IsUsernameExists(ctx, input.Username)
+	if err != nil {
+		return 500, fmt.Errorf("Internal Server Error: %w", err)
+	}
+
+	if exists {
 		return 409, errors.New("This username already exists.")
 	}
 

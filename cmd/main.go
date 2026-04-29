@@ -21,12 +21,16 @@ func main() {
 	authService := service.NewAuthService(staffRepo, jwtManager)
 	authHandler := handler.NewAuthHandler(authService)
 
+	patientRepo := repository.NewPatientRepository(db)
+	patientService := service.NewPatientService(patientRepo)
+	patientHandler := handler.NewPatientHandler(patientService)
+
 	handlers := &routes.Handlers{
-		Auth: authHandler,
-		// Patient: patientHandler, // เดี๋ยวเราจะทำ
+		Auth:    authHandler,
+		Patient: patientHandler,
 	}
 
-	r := routes.SetupRouter(handlers)
+	r := routes.SetupRouter(handlers, jwtManager)
 
 	r.Run(":" + cfg.AppPort)
 }

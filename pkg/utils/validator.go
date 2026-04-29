@@ -1,6 +1,9 @@
 package utils
 
-import "regexp"
+import (
+	"regexp"
+	"time"
+)
 
 var (
 	hasLetter  = regexp.MustCompile(`[A-Za-z]`)
@@ -22,4 +25,12 @@ func IsValidPassword(pw string) bool {
 		return false
 	}
 	return true
+}
+
+func IsValidDate(date string) bool {
+	if date == "" {
+		return true
+	}
+	_, err := time.Parse("2006-01-02", date)
+	return err == nil
 }

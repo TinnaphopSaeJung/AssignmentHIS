@@ -8,10 +8,6 @@ var (
 	hasSpecial = regexp.MustCompile(`[@$!%*#?&]`)
 )
 
-var thaiRegex = regexp.MustCompile(`^[ก-๙]+$`)
-
-var engRegex = regexp.MustCompile(`^[A-Za-z-]+$`)
-
 func IsValidPassword(pw string) bool {
 	if len(pw) < 8 {
 		return false
@@ -26,18 +22,4 @@ func IsValidPassword(pw string) bool {
 		return false
 	}
 	return true
-}
-
-func IsThaiName(s string) bool {
-	if s == "" {
-		return true
-	}
-	return thaiRegex.MatchString(s)
-}
-
-func IsEnglishName(s string) bool {
-	if s == "" {
-		return true
-	}
-	return engRegex.MatchString(s)
 }

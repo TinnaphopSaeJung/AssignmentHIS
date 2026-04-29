@@ -18,23 +18,15 @@ func NewStaffRepository(db *pgxpool.Pool) *StaffRepository {
 func (r *StaffRepository) Create(ctx context.Context, staff *models.Staff) error {
 	query := `
 		INSERT INTO staffs (
-			username, password_hash, hospital_id,
-			first_name_th, middle_name_th, last_name_th,
-			first_name_en, middle_name_en, last_name_en
+			username, password_hash, hospital_id
 		)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+		VALUES ($1,$2,$3)
 	`
 
 	_, err := r.db.Exec(ctx, query,
 		staff.Username,
 		staff.PasswordHash,
 		staff.HospitalID,
-		staff.FirstNameTH,
-		staff.MiddleNameTH,
-		staff.LastNameTH,
-		staff.FirstNameEN,
-		staff.MiddleNameEN,
-		staff.LastNameEN,
 	)
 
 	return err

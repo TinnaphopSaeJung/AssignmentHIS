@@ -24,18 +24,6 @@ func (s *AuthService) CreateStaff(ctx context.Context, input dto.CreateStaffInpu
 		return errors.New("Password must be at least 8 characters and include letters, numbers, and special characters.")
 	}
 
-	if !utils.IsThaiName(input.FirstNameTH) ||
-		!utils.IsThaiName(input.MiddleNameTH) ||
-		!utils.IsThaiName(input.LastNameTH) {
-		return errors.New("Thai name must contain only Thai characters.")
-	}
-
-	if !utils.IsEnglishName(input.FirstNameEN) ||
-		!utils.IsEnglishName(input.MiddleNameEN) ||
-		!utils.IsEnglishName(input.LastNameEN) {
-		return errors.New("English name must contain only A-Z and '-'.")
-	}
-
 	existing, _ := s.repo.FindByUsername(ctx, input.Username)
 	if existing != nil {
 		return errors.New("This username already exists.")
@@ -50,12 +38,6 @@ func (s *AuthService) CreateStaff(ctx context.Context, input dto.CreateStaffInpu
 		Username:     input.Username,
 		PasswordHash: string(hash),
 		HospitalID:   input.HospitalID,
-		FirstNameTH:  input.FirstNameTH,
-		MiddleNameTH: input.MiddleNameTH,
-		LastNameTH:   input.LastNameTH,
-		FirstNameEN:  input.FirstNameEN,
-		MiddleNameEN: input.MiddleNameEN,
-		LastNameEN:   input.LastNameEN,
 	}
 
 	return s.repo.Create(ctx, staff)

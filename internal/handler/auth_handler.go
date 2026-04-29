@@ -27,15 +27,9 @@ func (h *AuthHandler) CreateStaff(c *gin.Context) {
 	}
 
 	input := dto.CreateStaffInput{
-		Username:     req.Username,
-		Password:     req.Password,
-		HospitalID:   req.HospitalID,
-		FirstNameTH:  req.FirstNameTH,
-		MiddleNameTH: req.MiddleNameTH,
-		LastNameTH:   req.LastNameTH,
-		FirstNameEN:  req.FirstNameEN,
-		MiddleNameEN: req.MiddleNameEN,
-		LastNameEN:   req.LastNameEN,
+		Username:   req.Username,
+		Password:   req.Password,
+		HospitalID: req.HospitalID,
 	}
 
 	err := h.service.CreateStaff(c.Request.Context(), input)

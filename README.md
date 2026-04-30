@@ -17,33 +17,31 @@ This system manages patients, hospitals, and staff, including multi-hospital pat
 ---
 
 ## Project Structure
-`
 ├── database/
-│   └── init.sql            # SQL script for initializing the database (create tables, seed data)
+│ └── init.sql # SQL script for initializing the database (create tables, seed data)
 │
 ├── internal/
-│   ├── clients/            # External service clients (e.g., Hospital A API)
-│   ├── config/             # Environment variables and application configuration
-│   ├── database/           # Database connection setup (PostgreSQL)
-│   ├── handler/            # HTTP request/response handlers
-│   ├── middleware/         # Middleware (e.g., JWT authentication)
-│   ├── models/             # Structs mapping to database tables
-│   ├── repository/         # Database query layer
-│   ├── service/            # Business logic layer
-│   └── nginx/              # Nginx configuration
+│ ├── clients/ # External service clients (e.g., Hospital A API)
+│ ├── config/ # Environment variables and application configuration
+│ ├── database/ # Database connection setup (PostgreSQL)
+│ ├── handler/ # HTTP request/response handlers
+│ ├── middleware/ # Middleware (e.g., JWT authentication)
+│ ├── models/ # Structs mapping to database tables
+│ ├── repository/ # Database query layer
+│ ├── service/ # Business logic layer
+│ └── nginx/ # Nginx configuration
 │
 ├── pkg/
-│   └── utils/              # Utility functions (e.g., response, validation, JWT)
+│ └── utils/ # Utility functions (e.g., response, validation, JWT)
 │
-├── tests/                  # Unit tests
+├── tests/ # Unit tests
 │
-├── docker-compose.yml      # Multi-container orchestration
-├── Dockerfile              # Build configuration for Go service image
-├── .env                    # Environment variables for local development
-├── .env.docker             # Environment variables for Docker environment
-├── go.mod                  # Go module dependencies
-└── go.sum                  # Dependency checksums
-`
+├── docker-compose.yml # Multi-container orchestration
+├── Dockerfile # Build configuration for Go service image
+├── .env # Environment variables for local development
+├── .env.docker # Environment variables for Docker environment
+├── go.mod # Go module dependencies
+└── go.sum # Dependency checksums
 
 ---
 

@@ -17,6 +17,7 @@ This system manages patients, hospitals, and staff, including multi-hospital pat
 ---
 
 ## Project Structure
+```
 ├── database/
 │ └── init.sql # SQL script for initializing the database (create tables, seed data)
 │
@@ -42,14 +43,16 @@ This system manages patients, hospitals, and staff, including multi-hospital pat
 ├── .env.docker # Environment variables for Docker environment
 ├── go.mod # Go module dependencies
 └── go.sum # Dependency checksums
-
+```
 ---
 
 ## Getting Started
 
 ### 1. Clone the repository
+```bash
 git clone https://github.com/TinnaphopSaeJung/AssignmentHIS.git
 cd AssignmentHIS
+```
 ### 2. Run with Docker
 docker compose up --build
 

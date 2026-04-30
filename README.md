@@ -54,7 +54,9 @@ git clone https://github.com/TinnaphopSaeJung/AssignmentHIS.git
 cd AssignmentHIS
 ```
 ### 2. Run with Docker
+```bash
 docker compose up --build
+```
 
 ---
 

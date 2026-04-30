@@ -45,7 +45,7 @@ func (s *AuthService) CreateStaff(ctx context.Context, input dto.CreateStaffInpu
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return 500, errors.New("Internal Server Error.")
+		return 500, fmt.Errorf("Internal Server Error: %w", err)
 	}
 
 	staff := &models.Staff{

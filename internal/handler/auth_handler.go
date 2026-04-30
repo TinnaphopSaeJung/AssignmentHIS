@@ -1,21 +1,28 @@
 package handler
 
 import (
+	"context"
 	"net/http"
 
 	"his/internal/dto"
-	"his/internal/service"
 	"his/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
-type AuthHandler struct {
-	service *service.AuthService
+type AuthService interface {
+	CreateStaff(ctx context.Context, input dto.CreateStaffInput) (int, error)
+	Login(ctx context.Context, username, password string) (*dto.LoginResponse, int, error)
 }
 
-func NewAuthHandler(service *service.AuthService) *AuthHandler {
-	return &AuthHandler{service: service}
+type AuthHandler struct {
+	service AuthService
+}
+
+func NewAuthHandler(service AuthService) *AuthHandler {
+	return &AuthHandler{
+		service: service,
+	}
 }
 
 func (h *AuthHandler) CreateStaff(c *gin.Context) {

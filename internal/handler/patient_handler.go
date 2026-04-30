@@ -1,20 +1,25 @@
 package handler
 
 import (
+	"context"
 	"net/http"
 
 	"his/internal/dto"
-	"his/internal/service"
 	"his/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
-type PatientHandler struct {
-	service *service.PatientService
+type PatientService interface {
+	Search(ctx context.Context, hospitalID int64, req dto.SearchPatientRequest) (*dto.SearchPatientResponse, int, error)
+	SearchFromHISExternal(ctx context.Context, id string) (*dto.HospitalAPatientResponse, int, error)
 }
 
-func NewPatientHandler(service *service.PatientService) *PatientHandler {
+type PatientHandler struct {
+	service PatientService
+}
+
+func NewPatientHandler(service PatientService) *PatientHandler {
 	return &PatientHandler{
 		service: service,
 	}

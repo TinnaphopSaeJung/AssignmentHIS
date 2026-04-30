@@ -90,5 +90,7 @@ CREATE INDEX IF NOT EXISTS idx_phm_patient_id
 ON patient_hospitals_mapping(patient_id);
 
 INSERT INTO hospitals (id, name)
-VALUES (1, 'Hospital A')
+VALUES 
+    (1, 'Hospital A'),
+    (2, 'Hospital B')
 ON CONFLICT (id) DO NOTHING;

@@ -48,10 +48,10 @@ This system manages patients, hospitals, and staff, including multi-hospital pat
 ## Getting Started
 
 ### 1. Clone the repository
-`git clone https://github.com/TinnaphopSaeJung/AssignmentHIS.git`
-`cd AssignmentHIS`
+git clone https://github.com/TinnaphopSaeJung/AssignmentHIS.git
+cd AssignmentHIS
 ### 2. Run with Docker
-`docker compose up --build`
+docker compose up --build
 
 ---
 

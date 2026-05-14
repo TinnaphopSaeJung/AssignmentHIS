@@ -12,7 +12,7 @@ This system manages patients, hospitals, and staff, including multi-hospital pat
 - Gin Web Framework
 - PostgreSQL
 - Docker & Docker Compose
-- Nginx (Reverse Proxy)
+- Nginx (Reverse Proxy, Rate Limit, Load Balance)
 
 ---
 
@@ -82,7 +82,7 @@ docker compose up --build
 ---
 
  ## Architecture
-- Nginx acts as a reverse proxy
+- Nginx acts as a reverse proxy, rate limit, load balance
 - Go (Gin) handles API logic
 - PostgreSQL handles data persistence
 - Docker orchestrates all services

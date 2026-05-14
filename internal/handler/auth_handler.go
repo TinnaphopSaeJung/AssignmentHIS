@@ -13,6 +13,7 @@ import (
 type AuthService interface {
 	CreateStaff(ctx context.Context, input dto.CreateStaffInput) (int, error)
 	Login(ctx context.Context, username, password string) (*dto.LoginResponse, int, error)
+	RefreshToken(ctx context.Context, refreshToken string) (*dto.RefreshTokenResponse, int, error)
 }
 
 type AuthHandler struct {
@@ -63,4 +64,21 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	c.JSON(statusCode, utils.Success("Login successfully.", res))
+}
+
+func (h *AuthHandler) RefreshToken(c *gin.Context) {
+	var req dto.RefreshTokenRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, utils.Error("Failed. Invalid request. Error: "+err.Error()))
+		return
+	}
+
+	res, statusCode, err := h.service.RefreshToken(c.Request.Context(), req.RefreshToken)
+	if err != nil {
+		c.JSON(statusCode, utils.Error("Refresh token failed. Error: "+err.Error()))
+		return
+	}
+
+	c.JSON(statusCode, utils.Success("Refresh token successfully.", res))
 }

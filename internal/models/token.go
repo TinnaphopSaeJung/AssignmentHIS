@@ -1,0 +1,12 @@
+package models
+
+import "time"
+
+type RefreshToken struct {
+	ID        int64
+	StaffID   int64
+	TokenHash string
+	ExpiresAt time.Time
+	RevokedAt *time.Time
+	CreatedAt time.Time
+}

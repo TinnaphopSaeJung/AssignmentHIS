@@ -82,3 +82,34 @@ func (r *StaffRepository) IsUsernameExists(ctx context.Context, username string)
 
 	return exists, nil
 }
+
+func (r *StaffRepository) FindStaffByID(ctx context.Context, staffID int64) (*dto.StaffWithHospital, error) {
+	query := `
+		SELECT 
+			staffs.id,
+			staffs.username,
+			staffs.password_hash,
+			staffs.hospital_id,
+			hospitals.name AS hospital_name
+		FROM staffs
+		JOIN hospitals ON hospitals.id = staffs.hospital_id
+		WHERE staffs.id = $1
+		  AND staffs.deleted_at IS NULL
+	`
+
+	var staff dto.StaffWithHospital
+
+	err := r.db.QueryRow(ctx, query, staffID).Scan(
+		&staff.ID,
+		&staff.Username,
+		&staff.PasswordHash,
+		&staff.HospitalID,
+		&staff.HospitalName,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &staff, nil
+}

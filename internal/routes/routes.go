@@ -21,6 +21,7 @@ func SetupRouter(h *Handlers, jwtManager *utils.JWTManager) *gin.Engine {
 	{
 		staff.POST("/create", h.Auth.CreateStaff)
 		staff.POST("/login", h.Auth.Login)
+		staff.POST("/refresh-token", h.Auth.RefreshToken)
 	}
 
 	auth := r.Group("/")

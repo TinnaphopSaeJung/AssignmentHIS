@@ -13,13 +13,24 @@ import (
 
 func main() {
 	cfg := config.LoadConfig()
+
 	db := database.NewPostgres(cfg)
+	redisClient := database.NewRedis(cfg)
 
 	jwtManager := utils.NewJWTManager(cfg.JWTSecret)
 
 	// init layers
 	staffRepo := repository.NewStaffRepository(db)
-	authService := service.NewAuthService(staffRepo, jwtManager)
+	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
+	loginAttemptService := service.NewLoginAttemptService(redisClient)
+
+	authService := service.NewAuthService(
+		staffRepo,
+		refreshTokenRepo,
+		jwtManager,
+		loginAttemptService,
+	)
+
 	authHandler := handler.NewAuthHandler(authService)
 
 	hospitalAClient := clients.NewHospitalAClient()

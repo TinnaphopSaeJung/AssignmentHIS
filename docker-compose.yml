@@ -11,6 +11,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+      rabbitmq:
+        condition: service_started
     expose:
       - "3000"
     networks:
@@ -27,6 +29,8 @@ services:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_started
+      rabbitmq:
         condition: service_started
     expose:
       - "3000"
@@ -71,6 +75,18 @@ services:
     container_name: his_redis
     ports:
       - "6379:6379"
+    networks:
+      - his_network
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: his_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     networks:
       - his_network
 

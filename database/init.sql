@@ -71,6 +71,17 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id BIGSERIAL PRIMARY KEY,
+    event_type VARCHAR(100) NOT NULL,
+    staff_id BIGINT NULL,
+    hospital_id BIGINT NULL,
+    username VARCHAR(100) NULL,
+    ip_address VARCHAR(100) NULL,
+    metadata JSONB NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
 CREATE UNIQUE INDEX IF NOT EXISTS idx_passport_not_null
 ON patients(passport_id)
 WHERE passport_id IS NOT NULL;
@@ -109,3 +120,12 @@ VALUES
     (1, 'Hospital A'),
     (2, 'Hospital B')
 ON CONFLICT (id) DO NOTHING;
+
+CREATE INDEX IF NOT EXISTS idx_audit_logs_event_type
+ON audit_logs(event_type);
+
+CREATE INDEX IF NOT EXISTS idx_audit_logs_staff_id
+ON audit_logs(staff_id);
+
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at
+ON audit_logs(created_at);

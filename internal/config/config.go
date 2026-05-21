@@ -20,6 +20,8 @@ type Config struct {
 	RedisAddr     string
 	RedisPassword string
 	RedisDB       int
+
+	RabbitMQURL string
 }
 
 func LoadConfig() *Config {
@@ -45,5 +47,7 @@ func LoadConfig() *Config {
 		RedisAddr:     os.Getenv("REDIS_ADDR"),
 		RedisPassword: os.Getenv("REDIS_PASSWORD"),
 		RedisDB:       redisDB,
+
+		RabbitMQURL: os.Getenv("RABBITMQ_URL"),
 	}
 }

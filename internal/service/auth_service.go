@@ -7,6 +7,7 @@ import (
 	"his/internal/dto"
 	"his/internal/models"
 	"his/pkg/utils"
+	"log"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -31,19 +32,25 @@ type RefreshTokenRepository interface {
 	Revoke(ctx context.Context, staffID int64, tokenHash string) error
 }
 
+type AuditPublisher interface {
+	PublishAuditLog(ctx context.Context, event dto.AuditLogEvent) error
+}
+
 type AuthService struct {
 	repo                StaffRepository
 	refreshTokenRepo    RefreshTokenRepository
 	jwtManager          *utils.JWTManager
 	loginAttemptService LoginAttempt
+	auditPublisher      AuditPublisher
 }
 
-func NewAuthService(repo StaffRepository, refreshTokenRepo RefreshTokenRepository, jwtManager *utils.JWTManager, loginAttemptService LoginAttempt) *AuthService {
+func NewAuthService(repo StaffRepository, refreshTokenRepo RefreshTokenRepository, jwtManager *utils.JWTManager, loginAttemptService LoginAttempt, auditPublisher AuditPublisher) *AuthService {
 	return &AuthService{
 		repo:                repo,
 		refreshTokenRepo:    refreshTokenRepo,
 		jwtManager:          jwtManager,
 		loginAttemptService: loginAttemptService,
+		auditPublisher:      auditPublisher,
 	}
 }
 
@@ -79,7 +86,7 @@ func (s *AuthService) CreateStaff(ctx context.Context, input dto.CreateStaffInpu
 	return 201, nil
 }
 
-func (s *AuthService) Login(ctx context.Context, username, password string) (*dto.LoginResponse, int, error) {
+func (s *AuthService) Login(ctx context.Context, username, password, ipAddress string) (*dto.LoginResponse, int, error) {
 	isLocked, ttl, err := s.loginAttemptService.IsLocked(ctx, username)
 	if err != nil {
 		return nil, 500, errors.New("Cannot check login attempt.")
@@ -91,12 +98,34 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (*dt
 
 	staff, err := s.repo.FindStaffByUsername(ctx, username)
 	if err != nil {
+		s.publishAuditLog(ctx, dto.AuditLogEvent{
+			EventType: "staff_login_failed",
+			Username:  username,
+			IPAddress: ipAddress,
+			Metadata: map[string]interface{}{
+				"reason": "invalid_username_or_password",
+			},
+			CreatedAt: time.Now(),
+		})
+
 		statusCode, err := s.handleFailedLogin(ctx, username)
 		return nil, statusCode, err
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(staff.PasswordHash), []byte(password))
 	if err != nil {
+		s.publishAuditLog(ctx, dto.AuditLogEvent{
+			EventType:  "staff_login_failed",
+			StaffID:    &staff.ID,
+			HospitalID: &staff.HospitalID,
+			Username:   username,
+			IPAddress:  ipAddress,
+			Metadata: map[string]interface{}{
+				"reason": "invalid_username_or_password",
+			},
+			CreatedAt: time.Now(),
+		})
+
 		statusCode, err := s.handleFailedLogin(ctx, username)
 		return nil, statusCode, err
 	}
@@ -121,6 +150,18 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (*dt
 	if err := s.refreshTokenRepo.Create(ctx, staff.ID, refreshTokenHash, refreshTokenExpiresAt); err != nil {
 		return nil, 500, errors.New("Cannot save refresh token.")
 	}
+
+	s.publishAuditLog(ctx, dto.AuditLogEvent{
+		EventType:  "staff_login_success",
+		StaffID:    &staff.ID,
+		HospitalID: &staff.HospitalID,
+		Username:   staff.Username,
+		IPAddress:  ipAddress,
+		Metadata: map[string]interface{}{
+			"source": "staff_login",
+		},
+		CreatedAt: time.Now(),
+	})
 
 	return &dto.LoginResponse{
 		AccessToken:  accessToken,
@@ -175,4 +216,14 @@ func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*d
 	return &dto.RefreshTokenResponse{
 		AccessToken: accessToken,
 	}, 200, nil
+}
+
+func (s *AuthService) publishAuditLog(ctx context.Context, event dto.AuditLogEvent) {
+	if s.auditPublisher == nil {
+		return
+	}
+
+	if err := s.auditPublisher.PublishAuditLog(ctx, event); err != nil {
+		log.Println("failed to publish audit log:", err)
+	}
 }

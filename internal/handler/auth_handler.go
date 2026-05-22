@@ -12,7 +12,7 @@ import (
 
 type AuthService interface {
 	CreateStaff(ctx context.Context, input dto.CreateStaffInput) (int, error)
-	Login(ctx context.Context, username, password string) (*dto.LoginResponse, int, error)
+	Login(ctx context.Context, username, password, ipAddress string) (*dto.LoginResponse, int, error)
 	RefreshToken(ctx context.Context, refreshToken string) (*dto.RefreshTokenResponse, int, error)
 }
 
@@ -57,7 +57,9 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	res, statusCode, err := h.service.Login(c.Request.Context(), req.Username, req.Password)
+	clientIP := c.ClientIP()
+
+	res, statusCode, err := h.service.Login(c.Request.Context(), req.Username, req.Password, clientIP)
 	if err != nil {
 		c.JSON(statusCode, utils.Error("Login failed. Error: "+err.Error()))
 		return

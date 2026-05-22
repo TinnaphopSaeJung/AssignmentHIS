@@ -5,6 +5,7 @@ import (
 	"his/internal/config"
 	"his/internal/database"
 	"his/internal/handler"
+	"his/internal/messaging"
 	"his/internal/repository"
 	"his/internal/routes"
 	"his/internal/service"
@@ -16,6 +17,11 @@ func main() {
 
 	db := database.NewPostgres(cfg)
 	redisClient := database.NewRedis(cfg)
+
+	rabbitConn := database.NewRabbitMQ(cfg)
+	defer rabbitConn.Close()
+
+	auditPublisher := messaging.NewRabbitMQAuditPublisher(rabbitConn)
 
 	jwtManager := utils.NewJWTManager(cfg.JWTSecret)
 
@@ -29,6 +35,7 @@ func main() {
 		refreshTokenRepo,
 		jwtManager,
 		loginAttemptService,
+		auditPublisher,
 	)
 
 	authHandler := handler.NewAuthHandler(authService)

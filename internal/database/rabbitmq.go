@@ -2,6 +2,7 @@ package database
 
 import (
 	"log"
+	"time"
 
 	"his/internal/config"
 
@@ -9,12 +10,21 @@ import (
 )
 
 func NewRabbitMQ(cfg *config.Config) *amqp.Connection {
-	conn, err := amqp.Dial(cfg.RabbitMQURL)
-	if err != nil {
-		log.Fatalf("Unable to connect to RabbitMQ: %v", err)
+	var conn *amqp.Connection
+	var err error
+
+	for i := 1; i <= 10; i++ {
+		conn, err = amqp.Dial(cfg.RabbitMQURL)
+		if err == nil {
+			log.Println("Connected to RabbitMQ")
+			return conn
+		}
+
+		log.Printf("RabbitMQ connection failed attempt %d/10: %v", i, err)
+		time.Sleep(3 * time.Second)
 	}
 
-	log.Println("Connected to RabbitMQ")
+	log.Fatalf("Unable to connect to RabbitMQ after retries: %v", err)
 
-	return conn
+	return nil
 }
